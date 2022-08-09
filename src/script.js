@@ -47,6 +47,7 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
 
     cameraGLTF = gltf.cameras [ 0 ]
     scene.add(cameraGLTF)
+    cameraGLTF.scale.x = 1
 
     
 }
