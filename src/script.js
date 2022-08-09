@@ -36,7 +36,7 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
 
     action.play()
 
-    // console.log (gltf)
+    console.log (gltf)
     scene.add(gltf.scene)
 })
 
@@ -48,7 +48,7 @@ const floor = new THREE.Mesh(
     new THREE.MeshStandardMaterial({
         color: '#444444',
         metalness: 0,
-        roughness: 0.5
+        roughness: 0.1
     })
 )
 floor.receiveShadow = true
@@ -104,9 +104,9 @@ camera.position.set(2, 2, 4)
 scene.add(camera)
 
 // Controls   When making orbit actrive make sure to take out the comment section in the Tic animation section
-// const controls = new OrbitControls(camera, canvas)
-// controls.target.set(0, 0.75, 0)
-// controls.enableDamping = true
+const controls = new OrbitControls(camera, canvas)
+controls.target.set(0, 0.75, 0)
+controls.enableDamping = true
 
 /**
  * Renderer
@@ -138,7 +138,7 @@ const tick = () =>
         
 
     // Update controls  donm't forget to un comment this part too when turning orbit controls on
-    // controls.update() 
+    controls.update() 
 
     // Render
     renderer.render(scene, camera)
