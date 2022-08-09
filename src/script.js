@@ -27,6 +27,7 @@ const scene = new THREE.Scene()
 const gltfLoader = new GLTFLoader()
 
 let mixer = null
+let cameraGLTF = null
 
 gltfLoader.load ('/models/AD/AD-logo.gltf', 
 (gltf) => 
@@ -36,9 +37,23 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
 
     action.play()
 
-    console.log (gltf)
+    // console.log (gltf)
     scene.add(gltf.scene)
-})
+    gltf.animations; // Array<THREE.AnimationClip>
+    gltf.scene; // THREE.Group
+    gltf.scenes; // Array<THREE.Group>
+    gltf.cameras; // Array<THREE.Camera>
+    gltf.asset; // Object
+
+    cameraGLTF = gltf.cameras [ 0 ]
+    scene.add(cameraGLTF)
+
+    
+}
+);
+
+
+console.log(cameraGLTF)
 
 /**
  * Floor
@@ -48,7 +63,7 @@ const floor = new THREE.Mesh(
     new THREE.MeshStandardMaterial({
         color: '#444444',
         metalness: 0,
-        roughness: 0.1
+        roughness: 0.5
     })
 )
 floor.receiveShadow = true
@@ -80,33 +95,20 @@ const sizes = {
     height: window.innerHeight
 }
 
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
 
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
-
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-})
 
 /**
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(2, 2, 4)
-scene.add(camera)
+// const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+// camera.position.set(2, 2, 4)
+// scene.add(camera)
 
 // Controls   When making orbit actrive make sure to take out the comment section in the Tic animation section
-const controls = new OrbitControls(camera, canvas)
-controls.target.set(0, 0.75, 0)
-controls.enableDamping = true
+// const controls = new OrbitControls(cameraGLTF, canvas)
+// controls.target.set(0, 0.75, 0)
+// controls.enableDamping = true
 
 /**
  * Renderer
@@ -134,14 +136,22 @@ const tick = () =>
     // Mixer update animation for the AD logo
     if (mixer !== null){
         mixer.update(deltaTime)
+        // console.log(mixer)
     }
         
 
+    if (cameraGLTF !== null){
+        // console.log (cameraGLTF)
+        
+
+        renderer.render(scene, cameraGLTF)
+
+    }
+
     // Update controls  donm't forget to un comment this part too when turning orbit controls on
-    controls.update() 
+    // controls.update() 
 
     // Render
-    renderer.render(scene, camera)
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
