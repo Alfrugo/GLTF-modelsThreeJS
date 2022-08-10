@@ -28,6 +28,7 @@ const gltfLoader = new GLTFLoader()
 
 let mixer = null
 let cameraGLTF = null
+let controls = null
 
 gltfLoader.load ('/models/AD/AD-logo.gltf', 
 (gltf) => 
@@ -39,45 +40,47 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
 
     // console.log (gltf)
     scene.add(gltf.scene)
-    gltf.animations; // Array<THREE.AnimationClip>
-    gltf.scene; // THREE.Group
-    gltf.scenes; // Array<THREE.Group>
-    gltf.cameras; // Array<THREE.Camera>
-    gltf.asset; // Object
-
     cameraGLTF = gltf.cameras [ 0 ]
     scene.add(cameraGLTF)
-    cameraGLTF.scale.x = 1
 
-    
+
+    // cameraGLTF.scale.set (1,1,1)
+
+    console.log ( gltf.scene )
+
+
+    // Controls   When making orbit actrive make sure to take out the comment section in the Tic animation section
+controls = new OrbitControls(cameraGLTF, canvas)
+controls.target.set(0, 0.75, 0)
+controls.enableDamping = true
 }
 );
 
 
-console.log(cameraGLTF)
+// console.log(cameraGLTF)
 
 /**
  * Floor
  */
-const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
-    new THREE.MeshStandardMaterial({
-        color: '#444444',
-        metalness: 0,
-        roughness: 0.5
-    })
-)
-floor.receiveShadow = true
-floor.rotation.x = - Math.PI * 0.5
-scene.add(floor)
+// const floor = new THREE.Mesh(
+//     new THREE.PlaneGeometry(10, 10),
+//     new THREE.MeshStandardMaterial({
+//         color: '#444444',
+//         metalness: 0,
+//         roughness: 0.5
+//     })
+// )
+// floor.receiveShadow = true
+// floor.rotation.x = - Math.PI * 0.5
+// scene.add(floor)
 
 /**
  * Lights
  */
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+const ambientLight = new THREE.AmbientLight(0xffffff, 10)
 scene.add(ambientLight)
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 10)
 directionalLight.castShadow = true
 directionalLight.shadow.mapSize.set(1024, 1024)
 directionalLight.shadow.camera.far = 15
@@ -106,10 +109,7 @@ const sizes = {
 // camera.position.set(2, 2, 4)
 // scene.add(camera)
 
-// Controls   When making orbit actrive make sure to take out the comment section in the Tic animation section
-// const controls = new OrbitControls(cameraGLTF, canvas)
-// controls.target.set(0, 0.75, 0)
-// controls.enableDamping = true
+
 
 /**
  * Renderer
@@ -146,11 +146,12 @@ const tick = () =>
         
 
         renderer.render(scene, cameraGLTF)
+            // Update controls  donm't forget to un comment this part too when turning orbit controls on
+    controls.update() 
 
     }
 
-    // Update controls  donm't forget to un comment this part too when turning orbit controls on
-    // controls.update() 
+
 
     // Render
 
