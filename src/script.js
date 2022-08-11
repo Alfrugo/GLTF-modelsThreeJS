@@ -23,7 +23,6 @@ const scene = new THREE.Scene()
 /**
  * Models
  */
-
 const gltfLoader = new GLTFLoader()
 
 let mixer = null
@@ -40,8 +39,11 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
             })
         // animation of the elements in the scene
         mixer = new THREE.AnimationMixer(gltf.scene)
-        const action = mixer.clipAction(gltf.animations[0])
-        action.play()
+        const actionCamera = mixer.clipAction(gltf.animations[2])
+        const actionAD = mixer.clipAction(gltf.animations[0])
+
+        actionCamera.play()
+        actionAD.play()
 
         scene.add(gltf.scene)
         // cameraGLTF = gltf.cameras [ 0 ]
@@ -152,10 +154,8 @@ const tick = () =>
     // Mixer update animation for the AD logo
     if (mixer !== null){
         mixer.update(deltaTime)
-        // console.log(mixer)
     }
         
-
     // if (cameraGLTF !== null){
     //     // console.log (cameraGLTF)
     //     renderer.render(scene, cameraGLTF)
@@ -166,10 +166,6 @@ const tick = () =>
     renderer.render(scene, camera)
     //         // Update controls  donm't forget to un comment this part too when turning orbit controls on
     controls.update() 
-
-    // Render
-
-    // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
 
