@@ -48,9 +48,7 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
     {   
         gltf.scene.traverse((child) =>
             {
-                // console.log(child.children[0].position)
                 child.material = bakedMaterial
-
             })
         // animation of the elements in the scene
         mixer = new THREE.AnimationMixer(gltf.scene)
@@ -61,17 +59,14 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
         actionAD.play()
         
 
+
         scene.add(gltf.scene)
         // cameraGLTF = gltf.cameras [ 0 ]
         // scene.add(cameraGLTF)
         // cameraGLTF.scale.set (1,1,1)
 
-     
-        // camera.position.set(-3, 0.5, 5)
         scene.add(camera)
         
-        // console.log(gltf.scene.children.PerspectiveCamera)
-
         const tick = () =>
         {
             const elapsedTime = clock.getElapsedTime()
@@ -82,7 +77,6 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
             if (mixer !== null){
                 mixer.update(deltaTime)
             }
-            // console.log(gltf.scene.children[0].position.x)
 
             // if (cameraGLTF !== null){
             //     // console.log (cameraGLTF)
@@ -93,7 +87,16 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
 
             renderer.render(scene, camera)
             camera.position.set(gltf.scene.children[0].position.x, gltf.scene.children[0].position.y, gltf.scene.children[0].position.z)
-            // camera.lookAt(gltf.scene.children[1])
+           
+            camera.lookAt(gltf.scene.children[1].position)
+
+            console.log(gltf.scene.children[0].rotation.z)
+
+            camera.rotation.z=(gltf.scene.children[0].rotation.z)
+            camera.rotation.x=(gltf.scene.children[0].rotation.x)
+            camera.rotation.y=(gltf.scene.children[0].rotation.y)
+
+
         
             
         
@@ -101,15 +104,9 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
             //         // Update controls  donm't forget to un comment this part too when turning orbit controls on
             // controls.update() 
             window.requestAnimationFrame(tick)
-        
-            
-        
+
         }
-        
         tick()
-
-
-
     }
     );
 
