@@ -6,6 +6,10 @@ import * as dat from 'lil-gui'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { CubeCamera, MixOperation } from 'three'
 
+import { FlakesTexture } from 'three/examples/jsm/textures/FlakesTexture'
+
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
+ 
 import { TextureLoader } from 'three'
 
 /**
@@ -24,7 +28,6 @@ const scene = new THREE.Scene()
  * Models
  */
 const gltfLoader = new GLTFLoader()
-
 let mixer = null
 let cameraGLTF = null
 let controls = null
@@ -36,6 +39,7 @@ let controls = null
     width: window.innerWidth,
     height: window.innerHeight
 }
+
 /**
  * Camera
  */
@@ -43,14 +47,54 @@ let controls = null
 let camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 let childCamera = null
 
+
+let adModel = null
+let tildaModel = null
+let floorModel = null
+
+// GLTF loads the external models 
 gltfLoader.load ('/models/AD/AD-logo.gltf', 
     (gltf) => 
     {   
-        gltf.scene.traverse((child) =>
-            {
-                child.material = bakedMaterial
-            })
+        let texture = new THREE.CanvasTexture(new FlakesTexture())
+
+
+        const ballMaterial = {
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            metalness: 0.2,
+            roughness: 0.1,
+            color: 0x8418ca,
+            normalMap: texture,
+            normalScale: new THREE.Vector2(0.5,1)
+        }
+
+
+        const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture })
+        let ballMatt = new THREE.MeshPhysicalMaterial(ballMaterial)
+        texture.wrapS = THREE.RepeatWrapping
+        texture.wrapT = THREE.RepeatWrapping
+        texture.repeat.x = 500  
+        texture.repeat.y = 500
+        
+
+        adModel = gltf.scene.children[1]
+        floorModel = gltf.scene.children[2]
+        console.log ( gltf.scene )
+        adModel.material = bakedMaterial
+        // floorModel.material = bakedMaterial
+        floorModel.material = ballMatt
+        floorModel.receiveShadow = true
+        adModel.castShadow = true
+
+        // TRAVERSE combs through the elements of the imported model 
+        // gltf.scene.traverse((child) =>
+        //     {
+        //         child.material = bakedMaterial
+        //     })
         // animation of the elements in the scene
+
+        // MIXER Adds animation to the imported models
         mixer = new THREE.AnimationMixer(gltf.scene)
         const actionCamera = mixer.clipAction(gltf.animations[2])
         const actionAD = mixer.clipAction(gltf.animations[0])
@@ -58,8 +102,6 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
         actionCamera.play()
         actionAD.play()
         
-
-
         scene.add(gltf.scene)
         // cameraGLTF = gltf.cameras [ 0 ]
         // scene.add(cameraGLTF)
@@ -81,36 +123,37 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
             // if (cameraGLTF !== null){
             //     // console.log (cameraGLTF)
             //     renderer.render(scene, cameraGLTF)
-            //         // Update controls  donm't forget to un comment this part too when turning orbit controls on
-            //     controls.update() 
+            // ORBIT CONTROL UPDATE SECTION --- Update controls  donm't forget to un comment this part too when turning orbit controls on
+            // controls.update() 
             // }
 
             renderer.render(scene, camera)
-            camera.position.set(gltf.scene.children[0].position.x, gltf.scene.children[0].position.y, gltf.scene.children[0].position.z)
-           
-            camera.lookAt(gltf.scene.children[1].position)
 
-            console.log(gltf.scene.children[0].rotation.z)
+            // Linking Blender's camera position to the Three.JS camera
 
-            camera.rotation.z=(gltf.scene.children[0].rotation.z)
-            camera.rotation.x=(gltf.scene.children[0].rotation.x)
-            camera.rotation.y=(gltf.scene.children[0].rotation.y)
+            const blendrCamPos = {}
+            blendrCamPos.x = gltf.scene.children[0].position.x
+            blendrCamPos.y = gltf.scene.children[0].position.y
+            blendrCamPos.z = gltf.scene.children[0].position.z
 
-
+            const blendrCamRot = {}
+            blendrCamRot.x = gltf.scene.children[0].rotation.x
+            blendrCamRot.y = gltf.scene.children[0].rotation.y
+            blendrCamRot.z = gltf.scene.children[0].rotation.z
         
-            
-        
+            camera.position.set(blendrCamPos.x, blendrCamPos.y, blendrCamPos.z)
+            camera.rotation.set (blendrCamRot.x, blendrCamRot.y, blendrCamRot.z)
+  
+            //
 
-            //         // Update controls  donm't forget to un comment this part too when turning orbit controls on
+            // Update controls  donm't forget to un comment this part too when turning orbit controls on
             // controls.update() 
-            window.requestAnimationFrame(tick)
 
+
+            window.requestAnimationFrame(tick)
         }
         tick()
-    }
-    );
-
-// console.log(cameraGLTF)
+    })
 
 /**
  * Floor
@@ -130,20 +173,21 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
 /**
  * Lights
  */
-// const ambientLight = new THREE.AmbientLight(0xffffff, 10)
-// scene.add(ambientLight)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0)
+scene.add(ambientLight)
 
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 10)
-// directionalLight.castShadow = true
-// directionalLight.shadow.mapSize.set(1024, 1024)
-// directionalLight.shadow.camera.far = 15
-// directionalLight.shadow.camera.left = - 7
-// directionalLight.shadow.camera.top = 7
-// directionalLight.shadow.camera.right = 7
-// directionalLight.shadow.camera.bottom = - 7
-// directionalLight.position.set(5, 5, 5)
-// scene.add(directionalLight)
+const directionalLight = new THREE.DirectionalLight(0xffffff,8)
+directionalLight.castShadow = true
+directionalLight.shadow.mapSize.set(1024, 1024)
+directionalLight.shadow.camera.far = 15
+directionalLight.shadow.camera.left = - 7
+directionalLight.shadow.camera.top = 7
+directionalLight.shadow.camera.right = 7
+directionalLight.shadow.camera.bottom = - 7
+directionalLight.position.set(5, 5, 5)
+scene.add(directionalLight)
 
+//
 
 
 /**
@@ -151,19 +195,22 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
  */
 const textureLoader = new THREE.TextureLoader()
 
+
+
 /**
  * Textures
  */
 const bakedTexture = textureLoader.load('/models/AD/AD-Backed.jpg')
 bakedTexture.flipY = false
 
+
+
+
 /**
  * Materials
  */
 
 // Baked material
-const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture })
-
 
 
 
@@ -188,4 +235,3 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 const clock = new THREE.Clock()
 let previousTime = 0
-
