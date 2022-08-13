@@ -16,7 +16,10 @@ import { TextureLoader } from 'three'
  * Base
  */
 // Debug
-const gui = new dat.GUI()
+
+
+
+
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -64,10 +67,25 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
             clearcoatRoughness: 0.1,
             metalness: 0.2,
             roughness: 0.1,
-            color: 0x8418ca,
+            color: 0xff0000,
             normalMap: texture,
             normalScale: new THREE.Vector2(0.5,1)
         }
+
+        // Debug
+        const gui = new dat.GUI()
+
+        var parameters = {
+            color: 0xff0000
+        }
+        gui
+        .addColor(parameters, 'color')
+        .onChange(()=>
+        {
+            console.log (ballMaterial)
+            ballMaterial.color = parameters.color 
+        })
+    
 
 
         const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture })
@@ -176,10 +194,12 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
 const ambientLight = new THREE.AmbientLight(0xffffff, 0)
 scene.add(ambientLight)
 
-const directionalLight = new THREE.DirectionalLight(0xffffff,8)
+const directionalLight = new THREE.DirectionalLight(0xffffff,5)
 directionalLight.castShadow = true
-directionalLight.shadow.mapSize.set(1024, 1024)
-directionalLight.shadow.camera.far = 15
+directionalLight.shadow.radius = 600
+directionalLight.shadow.mapSize.set(200, 100)
+
+directionalLight.shadow.camera.far = 25
 directionalLight.shadow.camera.left = - 7
 directionalLight.shadow.camera.top = 7
 directionalLight.shadow.camera.right = 7
@@ -202,9 +222,6 @@ const textureLoader = new THREE.TextureLoader()
  */
 const bakedTexture = textureLoader.load('/models/AD/AD-Backed.jpg')
 bakedTexture.flipY = false
-
-
-
 
 /**
  * Materials
@@ -229,6 +246,7 @@ renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+// renderer.outputEncoding = THREE.sRGBEncoding
 
 /**
  * Animate
