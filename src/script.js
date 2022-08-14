@@ -87,7 +87,7 @@ gltfLoader.load ('/models/AD/AD-logo.gltf',
         })
     
 
-
+        
         const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture })
         let ballMatt = new THREE.MeshPhysicalMaterial(ballMaterial)
         texture.wrapS = THREE.RepeatWrapping
